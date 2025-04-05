@@ -1,0 +1,35 @@
+.center-form{
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 90vh;
+  width: 100%
+}
+
+.post-room-btn {
+  margin: 16px 0;
+  align-self: flex-start;
+}
+
+.room-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  flex: 1;
+}
+
+.room-row {
+  margin-bottom: 16px;
+}
+
+.pagination {
+  margin-top: auto;
+  padding-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.icon {
+  cursor: pointer;
+}

@@ -1,0 +1,131 @@
+<div class="center-form">
+  <div class="room-container">
+    <div class="room-row" *ngFor="let room of rooms">
+      <nz-card style="width: 300px; margin: 16px" [nzActions]="[actionEdit]">
+        <nz-skeleton
+          [nzActive]="true"
+          [nzLoading]="loading"
+          [nzAvatar]="{ size: 'large' }"
+        >
+          <nz-card-meta
+            [nzAvatar]="avatarTemplate"
+            nzTitle="{{ room.name }}"
+            nzDescription="Type: {{ room.type }}"
+          >
+          </nz-card-meta>
+          <nz-card-meta
+            style="margin-left: 49px"
+            nzDescription="Price: {{ room.price }}"
+          >
+          </nz-card-meta>
+        </nz-skeleton>
+      </nz-card>
+      <ng-template #avatarTemplate>
+        <nz-avatar
+          nzSrc="https://images.unsplash.com/photo-1629140727571-9b5c6f6267b4?q=80&w=1854&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        >
+        </nz-avatar>
+      </ng-template>
+      <ng-template #actionEdit>
+        <span nz-icon nzType="check-square" [nzTheme]="'twotone'" class="icon" (click)="showModalMiddle(room.id)">
+        </span>
+      </ng-template>
+    </div>
+  </div>
+
+  <nz-modal
+    nzTitle="Book Room"
+    nzCentered
+    [(nzVisible)]="isVisibleMiddle"
+    (nzOnCancel)="handleCancelMiddle()"
+    (nzOnOk)="handleOkMiddle()"
+  >
+  <ng-container *nzModalContent>
+    <div class="modal-content">
+      <!-- Fully booked alert -->
+      <nz-alert *ngIf="isSelectedDateFullyBooked"
+                nzType="error"
+                nzMessage="This room is fully booked for the selected date"
+                nzDescription="Please select another date or room."
+                nzShowIcon
+                style="margin-bottom: 16px;">
+      </nz-alert>
+
+      <label>Select Dates</label>
+      <nz-range-picker style="width: 100%;" [(ngModel)]="date" (ngModelChange)="onDateChange($event)"></nz-range-picker>
+
+      <div style="margin-top: 16px;">
+        <label nz-checkbox [(ngModel)]="bookWholeDay" (ngModelChange)="onWholeBookingChange($event)" [nzDisabled]="isSelectedDateFullyBooked">
+          Book for entire day (00:00 - 23:59)
+        </label>
+      </div>
+
+      <div *ngIf="!bookWholeDay && !isSelectedDateFullyBooked" class="time-selection" style="margin-top: 16px;">
+        <!-- Start Hour -->
+        <label style="margin-top: 8px;">Start Hour</label>
+        <nz-time-picker
+          [(ngModel)]="startTime"
+          [nzFormat]="'HH:mm'"
+          [nzHourStep]="1"
+          [nzMinuteStep]="15"
+          style="width: 100%;"
+          [nzDisabledHours]="disabledStartHours"
+          (ngModelChange)="onTimeChange()">
+        </nz-time-picker>
+
+        <!-- End Hour -->
+        <label style="margin-top: 8px;">End Hour</label>
+        <nz-time-picker
+          [(ngModel)]="endTime"
+          [nzFormat]="'HH:mm'"
+          [nzHourStep]="1"
+          [nzMinuteStep]="15"
+          style="width: 100%;"
+          [nzDisabledHours]="disabledEndHours">
+        </nz-time-picker>
+      </div>
+
+      <!-- Time slot availability visualization -->
+      <div *ngIf="!bookWholeDay && selectedDate && bookedTimeSlots.length > 0 && !isSelectedDateFullyBooked" class="time-slots-container" style="margin-top: 16px;">
+        <label>Availability for {{ selectedDate | date:'mediumDate' }}</label>
+        <div class="time-slots">
+          <div *ngFor="let slot of timeSlots"
+               class="time-slot"
+               [class.booked]="isTimeSlotBooked(slot)">
+            {{ slot }}
+          </div>
+        </div>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-color available"></div>
+            <span>Available</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color booked"></div>
+            <span>Booked</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error message -->
+      <div *ngIf="timeError" style="color: red; margin-top: 8px; font-size: 12px;">
+        End time cannot be earlier than start time
+      </div>
+
+      <!-- Booking conflict error -->
+      <div *ngIf="bookingConflictError" style="color: red; margin-top: 8px; font-size: 12px;">
+        The selected time slot conflicts with an existing booking
+      </div>
+    </div>
+  </ng-container>
+</nz-modal>
+
+  <div class="pagination">
+    <nz-pagination
+      [nzPageIndex]="currentPage"
+      [nzTotal]="total"
+      [nzPageSize]="1"
+      (nzPageIndexChange)="pageIndexChange($event)"
+    ></nz-pagination>
+  </div>
+</div>
